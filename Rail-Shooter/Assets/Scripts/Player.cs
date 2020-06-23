@@ -11,6 +11,10 @@ public class Player : MonoBehaviour
     [SerializeField] float xRange = 5f;
     [SerializeField] float yRange = 3f;
 
+    [SerializeField] float pitch = 0f;
+    [SerializeField] float yaw = 0f;
+    [SerializeField] float roll = 0f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -20,7 +24,17 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        HandleTranslation();
+        HandleRotation();
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        Debug.LogWarning(collision.collider);
+    }
+
+    private void HandleTranslation()
+    {
         float xThrow = CrossPlatformInputManager.GetAxis("Horizontal");
         float yThrow = CrossPlatformInputManager.GetAxis("Vertical");
 
@@ -38,8 +52,8 @@ public class Player : MonoBehaviour
             transform.localPosition.z);
     }
 
-    void OnCollisionEnter(Collision collision)
+    private void HandleRotation()
     {
-        Debug.LogWarning(collision.collider);
+        transform.localRotation = Quaternion.Euler(pitch, yaw, roll);
     }
 }
