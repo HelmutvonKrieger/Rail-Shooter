@@ -9,11 +9,15 @@ public class Player : MonoBehaviour
     [Tooltip("In ms^-1")] [SerializeField] float ySpeed = 10f;
 
     [SerializeField] float xRange = 5f;
-    [SerializeField] float yRange = 3f;
+    [SerializeField] float yRange = 4f;
 
-    [SerializeField] float pitch = 0f;
-    [SerializeField] float yaw = 0f;
-    [SerializeField] float roll = 0f;
+    [SerializeField] float positionPitchFactor = -5f;
+    [SerializeField] float controlPitchFactor = -20f;
+    [SerializeField] float positionYawFactor = -9.44f;
+    [SerializeField] float controlRollFactor = -30f;
+
+    float xThrow;
+    float yThrow;
 
     // Start is called before the first frame update
     void Start()
@@ -35,14 +39,14 @@ public class Player : MonoBehaviour
 
     private void HandleTranslation()
     {
-        float xThrow = CrossPlatformInputManager.GetAxis("Horizontal");
-        float yThrow = CrossPlatformInputManager.GetAxis("Vertical");
+        xThrow = CrossPlatformInputManager.GetAxis("Horizontal");
+        yThrow = CrossPlatformInputManager.GetAxis("Vertical");
 
         float xOffset = xThrow * xSpeed * Time.deltaTime;
         float rawXPos = transform.localPosition.x + xOffset;
         float clampedXPos = Mathf.Clamp(rawXPos, -xRange, xRange);
 
-        float yOffset = yThrow * ySpeed * Time.deltaTime;
+        float yOffset = -yThrow * ySpeed * Time.deltaTime;
         float rawYPos = transform.localPosition.y + yOffset;
         float clampedYPos = Mathf.Clamp(rawYPos, -yRange, yRange);
 
@@ -54,6 +58,16 @@ public class Player : MonoBehaviour
 
     private void HandleRotation()
     {
-        transform.localRotation = Quaternion.Euler(pitch, yaw, roll);
+        float pitchFromPosition = transform.localPosition.y * positionPitchFactor;
+        float pitchFromControlThrow = -yThrow * controlPitchFactor;
+        float yawFromPostion = transform.localPosition.z + positionYawFactor;
+        //float yawFromControlThrow = zThrow * controlYawFactor;
+        //float rollFromPostion = transform.localPosition.x * positionRollFactor;
+        float rollFromControlThrow = xThrow * controlRollFactor;
+
+    transform.localRotation = Quaternion.Euler(
+        pitchFromPosition + pitchFromControlThrow,
+        yawFromPostion,
+        rollFromControlThrow);
     }
 }
